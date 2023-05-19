@@ -36,6 +36,26 @@ async function run() {
         res.send(result)
         
     })
+
+    app.get("/allToys",async(req,res)=>{
+      const result = await toyCollection.find().toArray()
+      res.send(result) 
+    })
+
+    // get number of total toys 
+    app.get("/totalToys", async(req,res)=>{
+      const result = await toyCollection.estimatedDocumentCount();
+      res.send({result})
+    })
+
+    // get limited toy for pagination
+    app.get("/toys", async(req,res)=>{
+      const page = parseInt(req.query.page) || 0;
+      const limit = parseInt(req.query.limit) || 20;
+      const skip = page * limit;
+      const result = await toyCollection.find().skip(skip).limit(limit).toArray();
+      res.send(result)
+    })
     
     app.patch("/updateToys/:id", async(req,res)=>{
       const id = req.params.id;
