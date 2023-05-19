@@ -28,7 +28,8 @@ async function run() {
   try {
     await client.connect();
     const toyCollection = client.db("AquaLeapToy").collection("toyCollection")   
-    
+    const result = await toyCollection.createIndex({toyName: 1})
+
     app.get("/myToys", async(req,res)=>{
         const email = req.query.email
         const query = {email: email}
@@ -56,7 +57,13 @@ async function run() {
       const result = await toyCollection.find().skip(skip).limit(limit).toArray();
       res.send(result)
     })
-    
+    // getting search result
+    app.get("/toys/:text", async(req,res)=>{
+      const text = req.params.text;
+      const query = {toyName: text}
+      const result = await toyCollection.find({toyName: {$regex:text, $options: "i"}}).toArray()
+      res.send(result)
+    })
     app.patch("/updateToys/:id", async(req,res)=>{
       const id = req.params.id;
       const updatedToy = req.body;
