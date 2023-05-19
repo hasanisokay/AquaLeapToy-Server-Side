@@ -29,7 +29,8 @@ async function run() {
     await client.connect();
     const toyCollection = client.db("AquaLeapToy").collection("toyCollection")   
     const result = await toyCollection.createIndex({toyName: 1})
-
+    
+    // get my toys by email
     app.get("/myToys", async(req,res)=>{
         const email = req.query.email
         const query = {email: email}
@@ -37,7 +38,15 @@ async function run() {
         res.send(result)
         
     })
+    // get single toy details
+    app.get("/toy/:id", async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = toyCollection.findOne(query);
+      res.send(result)
+    })
 
+    // get all toys 
     app.get("/allToys",async(req,res)=>{
       const result = await toyCollection.find().toArray()
       res.send(result) 
@@ -57,13 +66,14 @@ async function run() {
       const result = await toyCollection.find().skip(skip).limit(limit).toArray();
       res.send(result)
     })
+
     // getting search result
     app.get("/toys/:text", async(req,res)=>{
       const text = req.params.text;
-      const query = {toyName: text}
       const result = await toyCollection.find({toyName: {$regex:text, $options: "i"}}).toArray()
       res.send(result)
     })
+    // updating
     app.patch("/updateToys/:id", async(req,res)=>{
       const id = req.params.id;
       const updatedToy = req.body;
@@ -91,8 +101,6 @@ async function run() {
       const result = await toyCollection.deleteOne(query)
       res.send(result)
     })
-    
-    
     
     // adding toys to db
     app.post("/addAToy",async(req,res)=>{
