@@ -27,10 +27,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    
-    const serviceCollection = client.db("AquaLeapToy").collection("toyCollection")
-    // const bookingCollection = client.db("AquaLeapToy").collection("bookings")    
-
+    const toyCollection = client.db("AquaLeapToy").collection("toyCollection")   
+    app.post("/addAToy",async(req,res)=>{
+        const toy = req.body;
+        const result = await toyCollection.insertOne(toy);
+        res.send(result)
+    })
 
 
     await client.db("admin").command({ ping: 1 });
