@@ -28,11 +28,26 @@ async function run() {
   try {
     await client.connect();
     const toyCollection = client.db("AquaLeapToy").collection("toyCollection")   
+    
+    app.get("/myToys", async(req,res)=>{
+        const email = req.query.email
+        const query = {email: email}
+        const result = await toyCollection.find(query).toArray()
+        res.send(result)
+        
+    })
+    
+    
+    
+    
+    // adding toys to db
     app.post("/addAToy",async(req,res)=>{
         const toy = req.body;
         const result = await toyCollection.insertOne(toy);
         res.send(result)
     })
+
+
 
 
     await client.db("admin").command({ ping: 1 });
