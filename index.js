@@ -28,7 +28,8 @@ async function run() {
   try {
     await client.connect();
     const toyCollection = client.db("AquaLeapToy").collection("toyCollection")   
-    const result = await toyCollection.createIndex({toyName: 1})
+    const result1 = await toyCollection.createIndex({toyName: 1})
+    const result2 = await toyCollection.createIndex({category: 1})
     
     // get my toys by email
     app.get("/myToys", async(req,res)=>{
@@ -42,7 +43,14 @@ async function run() {
     app.get("/toy/:id", async(req,res)=>{
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
-      const result = toyCollection.findOne(query);
+      const result = await toyCollection.findOne(query);
+      res.send(result)
+    })
+
+    app.get("/category/:type",async(req,res)=>{
+      const type = req.params.type;
+      const query = {}
+      const result = await toyCollection.find({category: {$regex:type}}).toArray()
       res.send(result)
     })
 
