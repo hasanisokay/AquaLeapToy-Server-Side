@@ -30,26 +30,59 @@ async function run() {
     const toyCollection = client.db("AquaLeapToy").collection("toyCollection")   
     const result1 = await toyCollection.createIndex({toyName: 1})
     const result2 = await toyCollection.createIndex({category: 1})
+    const result3 = await toyCollection.createIndex({price: 1})
     
     // get my toys by email
     app.get("/myToys", async(req,res)=>{
-        const email = req.query.email
+        const email = req.query.email;
+        const sortingType = req.query.sort;
+        let sortingValue = 1
+        if(sortingType ==="ascending"){
+          sortingValue = 1
+        } 
+        else if(sortingType==="descending"){
+          sortingValue = -1
+        }
+        
         const query = {email: email}
-        const result = await toyCollection.find(query).toArray()
-        res.send(result)
+        
+        if(sortingType){
+          const result = await toyCollection.find(query).sort({price:sortingValue}).toArray()
+          res.send(result)
+        }
+        else{
+          const result = await toyCollection.find(query).toArray()
+          res.send(result)
+        }
+        
         
     })
     // get single toy details
     app.get("/toy/:id", async(req,res)=>{
-      const id = req.params.id;
+      const id = req.params.id.toString();
       const query = {_id: new ObjectId(id)}
       const result = await toyCollection.findOne(query);
       res.send(result)
     })
 
+    // sorting by price
+    // app.get("/myToys/:type", async(req,res)=>{
+    //   const sortType = req.params.type;
+    //   console.log(typeOf sortType);
+    //   let sortingValue
+    //   if(sortType==="ascending"){
+    //     sortingValue = -1;
+    //   }
+    //   else if(sortType==="descending"){
+    //     sortingValue = 1;
+    //   }
+    //   const result = await toyCollection.find().sort({price: sortingValue}).toArray();
+    //   res.send(result)
+    // })
+
+    // find data by category
     app.get("/category/:type",async(req,res)=>{
       const type = req.params.type;
-      const query = {}
       const result = await toyCollection.find({category: {$regex:type}}).toArray()
       res.send(result)
     })
@@ -91,9 +124,9 @@ async function run() {
           toyName:updatedToy.toyName, 
           photoURL:updatedToy.photoURL, 
           sellerName:updatedToy.sellerName, 
-          price:updatedToy.price, 
-          rating:updatedToy.rating, 
-          quantity:updatedToy.quantity, 
+          price: parseInt(updatedToy.price), 
+          rating:parseInt(updatedToy.rating), 
+          quantity:parseInt(updatedToy.quantity), 
           description:updatedToy.description, 
           category:updatedToy.category
         }
