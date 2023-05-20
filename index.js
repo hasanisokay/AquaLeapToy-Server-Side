@@ -32,11 +32,11 @@ async function run() {
     const result2 = await toyCollection.createIndex({category: 1})
     const result3 = await toyCollection.createIndex({price: 1})
     
-    // get my toys by email
+    // get my toys by email and sorting
     app.get("/myToys", async(req,res)=>{
         const email = req.query.email;
         const sortingType = req.query.sort;
-        let sortingValue = 1
+        let sortingValue = null
         if(sortingType ==="ascending"){
           sortingValue = 1
         } 
@@ -46,7 +46,7 @@ async function run() {
         
         const query = {email: email}
         
-        if(sortingType){
+        if(sortingValue){
           const result = await toyCollection.find(query).sort({price:sortingValue}).toArray()
           res.send(result)
         }
@@ -128,7 +128,7 @@ async function run() {
           rating:parseInt(updatedToy.rating), 
           quantity:parseInt(updatedToy.quantity), 
           description:updatedToy.description, 
-          category:updatedToy.category
+          time:updatedToy.time
         }
       }
       const result = await toyCollection.updateOne(filter,updatedDoc)
