@@ -28,6 +28,8 @@ async function run() {
   try {
     await client.connect();
     const toyCollection = client.db("AquaLeapToy").collection("toyCollection")   
+    const blogsCollection = client.db("AquaLeapToy").collection("blogsCollection")   
+    const savedBlogs = client.db("AquaLeapToy").collection("savedBlogs")   
     const result1 = await toyCollection.createIndex({toyName: 1})
     const result2 = await toyCollection.createIndex({category: 1})
     const result3 = await toyCollection.createIndex({price: 1})
@@ -150,6 +152,11 @@ async function run() {
         res.send(result)
     })
 
+    // getting blogs all 
+    app.get("/blogs", async(req,res)=>{
+      const result = await blogsCollection.find().toArray()
+      res.send(result)
+    })
 
 
 
