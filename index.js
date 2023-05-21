@@ -29,7 +29,7 @@ async function run() {
     await client.connect();
     const toyCollection = client.db("AquaLeapToy").collection("toyCollection")   
     const blogsCollection = client.db("AquaLeapToy").collection("blogsCollection")   
-    const savedBlogs = client.db("AquaLeapToy").collection("savedBlogs")   
+    const savedBlogsCollection = client.db("AquaLeapToy").collection("savedBlogs")   
     const result1 = await toyCollection.createIndex({toyName: 1})
     const result2 = await toyCollection.createIndex({category: 1})
     const result3 = await toyCollection.createIndex({price: 1})
@@ -66,21 +66,6 @@ async function run() {
       const result = await toyCollection.findOne(query);
       res.send(result)
     })
-
-    // sorting by price
-    // app.get("/myToys/:type", async(req,res)=>{
-    //   const sortType = req.params.type;
-    //   console.log(typeOf sortType);
-    //   let sortingValue
-    //   if(sortType==="ascending"){
-    //     sortingValue = -1;
-    //   }
-    //   else if(sortType==="descending"){
-    //     sortingValue = 1;
-    //   }
-    //   const result = await toyCollection.find().sort({price: sortingValue}).toArray();
-    //   res.send(result)
-    // })
 
     // find data by category
     app.get("/category/:type",async(req,res)=>{
@@ -157,7 +142,20 @@ async function run() {
       const result = await blogsCollection.find().toArray()
       res.send(result)
     })
+    
+    // getting pined blogs for individul user by email
+    app.get("/saved-blogs", async(req,res)=>{
+      const email = req.query.email;
+      const result = await savedBlogsCollection.find({authorEmail:email}).toArray()
+      res.send(result)
+    })
 
+    // saving pinned blogs to db 
+    app.put("/add-blog", async(req,res)=>{
+      const blog = req.body;
+      const result = await savedBlogsCollection.insertOne(blog);
+      res.send(result);
+    })
 
 
     await client.db("admin").command({ ping: 1 });
